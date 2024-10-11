@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\ApplyController;
 use App\Http\Controllers\Api\KarirController;
+use App\Models\Apply;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,4 +27,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 // Route::put('karir/{id}',[KarirController::class,'store']);
 // Route::delete('karir/{id}',[KarirController::class,'destroy']);
 
-Route::apiResource('karir',KarirController::class);
+Route::apiResource('karir',KarirController::class)->middleware('CheckHost');
+Route::apiResource('apply',ApplyController::class);
+
+// Route::get('apply', [ApplyController::class, 'index']);
+// Route::get('apply/{id}', [ApplyController::class, 'show']);
+// Route::post('apply', [ApplyController::class, 'store']);
+// Route::put('apply/{id}', [ApplyController::class, 'update']);
+// Route::delete('apply/{id}', [ApplyController::class, 'destroy']);

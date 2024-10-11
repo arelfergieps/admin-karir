@@ -21,8 +21,7 @@
                         <li>{{ $item }}</li>
                     @endforeach
                 </ul>
-            </div>
-                
+            </div>  
             @endif
 
 @if (session()->has('success'))
@@ -81,7 +80,7 @@
                 </thead>
                 <tbody>
                     <?php $i=1;?>
-                    @foreach ($data as $item)
+                    @foreach ($data['data'] as $item)
                         <tr>
                         <td>{{ $i }}</td>
                         <td>{{ $item['job_title'] }}</td>

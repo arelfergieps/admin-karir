@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\karir;
+use App\Models\Karir;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -12,12 +12,26 @@ class KarirController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $data = karir::orderBy('job_title', 'asc')->get();
+        // Tangani query pencarian
+        $search = $request->input('search', '');
+
+        // Jika ada pencarian, lakukan query dengan filter dan hanya tampilkan yang statusnya 'show' (1)
+        if ($search) {
+            $data = Karir::where('status', 1) // Menampilkan hanya yang statusnya "show"
+                ->where('job_title', 'like', "%{$search}%")
+                ->orderBy('job_title', 'asc')
+                ->paginate(5);
+        } else {
+            $data = Karir::where('status', 1) // Menampilkan hanya yang statusnya "show"
+                ->orderBy('job_title', 'asc')
+                ->paginate(5);
+        }
+
         return response()->json([
             'status' => true,
-            'message' => 'Data di temukan',
+            'message' => 'Data ditemukan',
             'data' => $data
         ], 200);
     }
@@ -29,24 +43,34 @@ class KarirController extends Controller
     {
         $dataKarir = new Karir;
 
-$rules = [
-    'job_title'=>'required',
-    'description'=>'required',
-    'location'=>'required'
+        $rules = [
+            'job_title' => 'required',
+            'description' => 'required',
+            'location' => 'required',
+            'kategori' => 'required',
+            'kualifikasi' => 'required',
+            'divisi' => 'required',
+            'gaji' => 'required|numeric',
+            'status' => 'required|in:1,2' // Status hanya boleh 1 (show) atau 2 (hide)
+        ];
 
-];
-$validator = Validator::make($request->all(),$rules);
-if($validator->fails()){
-    return response()->json([
-'status'=>false,
-'message'=>'Gagal memasukan data',
-'data'=>$validator->errors()
-    ]);
-}
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal memasukan data',
+                'data' => $validator->errors()
+            ]);
+        }
 
         $dataKarir->job_title = $request->job_title;
         $dataKarir->description = $request->description;
         $dataKarir->location = $request->location;
+        $dataKarir->kategori = $request->kategori;
+        $dataKarir->kualifikasi = $request->kualifikasi;
+        $dataKarir->divisi = $request->divisi;
+        $dataKarir->gaji = $request->gaji;
+        $dataKarir->status = $request->status;
 
         $post = $dataKarir->save();
 
@@ -61,7 +85,7 @@ if($validator->fails()){
      */
     public function show(string $id)
     {
-        $data = karir::find($id);
+        $data = Karir::find($id);
         if ($data) {
             return response()->json([
                 'status' => true,
@@ -82,19 +106,24 @@ if($validator->fails()){
     public function update(Request $request, string $id)
     {
         $dataKarir = Karir::find($id);
-        if(empty($dataKarir)){
+        if (empty($dataKarir)) {
             return response()->json([
-                'status'=>false,
-                'message'=>'Data tidak ditemukan'
+                'status' => false,
+                'message' => 'Data tidak ditemukan'
             ], 404);
         }
 
         $rules = [
-                'job_title' => 'required',
-                'description' => 'required',
-                'location' => 'required'
+            'job_title' => 'required',
+            'description' => 'required',
+            'location' => 'required',
+            'kategori' => 'required',
+            'kualifikasi' => 'required',
+            'divisi' => 'required',
+            'gaji' => 'required|numeric',
+            'status' => 'required|in:1,2' // Status hanya boleh 1 (show) atau 2 (hide)
+        ];
 
-            ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return response()->json([
@@ -107,6 +136,11 @@ if($validator->fails()){
         $dataKarir->job_title = $request->job_title;
         $dataKarir->description = $request->description;
         $dataKarir->location = $request->location;
+        $dataKarir->kategori = $request->kategori;
+        $dataKarir->kualifikasi = $request->kualifikasi;
+        $dataKarir->divisi = $request->divisi;
+        $dataKarir->gaji = $request->gaji;
+        $dataKarir->status = $request->status;
 
         $post = $dataKarir->save();
 
@@ -128,7 +162,6 @@ if($validator->fails()){
                 'message' => 'Data tidak ditemukan'
             ], 404);
         }
-
 
         $post = $dataKarir->delete();
 
