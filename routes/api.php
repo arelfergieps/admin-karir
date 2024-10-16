@@ -29,6 +29,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::apiResource('karir',KarirController::class)->middleware('CheckHost');
 Route::apiResource('apply',ApplyController::class);
+Route::put('/apply/{id}/reject', [ApplyController::class, 'reject']);
+Route::put('/apply/{id}/accept', [ApplyController::class, 'updateStatus']);
+
+
+
 
 // Route::get('apply', [ApplyController::class, 'index']);
 // Route::get('apply/{id}', [ApplyController::class, 'show']);

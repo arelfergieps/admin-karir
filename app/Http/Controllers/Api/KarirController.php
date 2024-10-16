@@ -14,20 +14,24 @@ class KarirController extends Controller
      */
     public function index(Request $request)
     {
-        // Tangani query pencarian
         $search = $request->input('search', '');
+        $status = $request->input('status', 1); // Default ke status 1
+        $perPage = $request->input('per_page', 5); // Data per halaman
 
-        // Jika ada pencarian, lakukan query dengan filter dan hanya tampilkan yang statusnya 'show' (1)
-        if ($search) {
-            $data = Karir::where('status', 1) // Menampilkan hanya yang statusnya "show"
-                ->where('job_title', 'like', "%{$search}%")
-                ->orderBy('job_title', 'asc')
-                ->paginate(5);
-        } else {
-            $data = Karir::where('status', 1) // Menampilkan hanya yang statusnya "show"
-                ->orderBy('job_title', 'asc')
-                ->paginate(5);
+        $query = Karir::query(); // Membuat query builder
+
+        // Filter berdasarkan status jika ada
+        if ($status) {
+            $query->where('status', $status);
         }
+
+        // Tambahkan pencarian berdasarkan judul pekerjaan
+        if ($search) {
+            $query->where('job_title', 'like', "%{$search}%");
+        }
+
+        // Urutkan dan paginate hasilnya
+        $data = $query->orderBy('job_title', 'asc')->paginate($perPage);
 
         return response()->json([
             'status' => true,
@@ -35,6 +39,9 @@ class KarirController extends Controller
             'data' => $data
         ], 200);
     }
+
+
+
 
     /**
      * Store a newly created resource in storage.
@@ -51,7 +58,7 @@ class KarirController extends Controller
             'kualifikasi' => 'required',
             'divisi' => 'required',
             'gaji' => 'required|numeric',
-            'status' => 'required|in:1,2' // Status hanya boleh 1 (show) atau 2 (hide)
+            // 'status' => 'required|in:1,2' // Status hanya boleh 1 (show) atau 2 (hide)
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -70,7 +77,7 @@ class KarirController extends Controller
         $dataKarir->kualifikasi = $request->kualifikasi;
         $dataKarir->divisi = $request->divisi;
         $dataKarir->gaji = $request->gaji;
-        $dataKarir->status = $request->status;
+        // $dataKarir->status = 1;
 
         $post = $dataKarir->save();
 
@@ -170,4 +177,29 @@ class KarirController extends Controller
             'message' => 'Sukses melakukan Hapus data'
         ]);
     }
+
+    /**
+     * Toggle the status of the specified resource.
+     */
+    // public function toggleStatus(string $id)
+    // {
+    //     $dataKarir = Karir::find($id);
+    //     if (empty($dataKarir)) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => 'Data tidak ditemukan'
+    //         ], 404);
+    //     }
+
+    //     // Toggle status
+    //     $dataKarir->status = $dataKarir->status == 1 ? 2 : 1; // 1 = aktif, 2 = non-aktif
+    //     $dataKarir->save();
+
+    //     return response()->json([
+    //         'status' => true,
+    //         'message' => 'Status berhasil diubah'
+    //     ]);
+    // }
+    
+
 }

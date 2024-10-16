@@ -10,17 +10,46 @@ use Illuminate\Support\Facades\Validator;
 class ApplyController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource for status 1.
      */
     public function index()
     {
-        $data = Apply::orderBy('nama', 'asc')->get();
+        // Hanya menampilkan data dengan status 1
+        $data = Apply::where('status', 1)->orderBy('nama', 'asc')->get();
         return response()->json([
             'status' => true,
             'message' => 'Data ditemukan',
             'data' => $data
         ], 200);
     }
+
+    /**
+     * Display a listing of accepted applications (status 2).
+     */
+    // public function accepted()
+    // {
+    //     // Menampilkan data dengan status 2
+    //     $data = Apply::where('status', 2)->orderBy('nama', 'asc')->get();
+    //     return response()->json([
+    //         'status' => true,
+    //         'message' => 'Data diterima ditemukan',
+    //         'data' => $data
+    //     ], 200);
+    // }
+
+    // /**
+    //  * Display a listing of rejected applications (status 3).
+    //  */
+    // public function rejected()
+    // {
+    //     // Menampilkan data dengan status 3
+    //     $data = Apply::where('status', 3)->orderBy('nama', 'asc')->get();
+    //     return response()->json([
+    //         'status' => true,
+    //         'message' => 'Data ditolak ditemukan',
+    //         'data' => $data
+    //     ], 200);
+    // }
 
     /**
      * Store a newly created resource in storage.
@@ -30,24 +59,20 @@ class ApplyController extends Controller
         $dataApply = new Apply;
 
         $rules = [
-            'nama' => 'required',
-            'email' => 'required|email|unique:apply,email', // Validasi email unik
-            'no_tlp' => 'required|unique:apply,no_tlp', // Validasi no_tlp unik
-            'alamat' => 'required',
-            'cv' => 'required',
-            'portofolio' => 'nullable', // Kolom ini bisa kosong
-            'linkdln' => 'nullable|url', // Validasi linkdln
-            'github' => 'nullable|url', // Validasi github
-            'status' => 'required|in:1,2,3' // Validasi status harus 1, 2, atau 3
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|max:255', // Hapus 'unique'
+            'no_tlp' => 'required|string|max:20', // Hapus 'unique'
+            'alamat' => 'required|string|max:255',
+            'cv' => 'required|file|mimes:pdf|max:2048', // Validasi untuk CV sebagai file PDF
+            'portofolio' => 'nullable|string|max:255',
+            'linkdln' => 'nullable|url|max:255',
+            'github' => 'nullable|string|max:255', // Mengizinkan teks biasa dengan panjang maksimum 255 karakter
         ];
+
 
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Gagal memasukkan data',
-                'data' => $validator->errors()
-            ]);
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
         // Menyimpan data
@@ -55,39 +80,24 @@ class ApplyController extends Controller
         $dataApply->email = $request->email;
         $dataApply->no_tlp = $request->no_tlp;
         $dataApply->alamat = $request->alamat;
-        $dataApply->cv = $request->cv;
+
+        if ($request->hasFile('cv')) {
+            $pdfFile = $request->file('cv');
+            $sertif = $pdfFile->store('cv', 'public');
+            $dataApply->cv = $sertif;
+        }
+
         $dataApply->portofolio = $request->portofolio;
-        $dataApply->linkdln = $request->linkdln; // Menyimpan linkdln
-        $dataApply->github = $request->github;   // Menyimpan github
-        $dataApply->status = $request->status;   // Menyimpan status
+        $dataApply->linkdln = $request->linkdln;
+        $dataApply->github = $request->github;
 
         $dataApply->save();
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Sukses memasukkan data'
-        ]);
+        // Redirect ke halaman apply.blade.php dengan pesan sukses
+        return redirect()->route('apply.index')->with('success', 'Sukses memasukkan data');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        $data = Apply::find($id);
-        if ($data) {
-            return response()->json([
-                'status' => true,
-                'message' => 'Data ditemukan',
-                'data' => $data
-            ], 200);
-        } else {
-            return response()->json([
-                'status' => false,
-                'message' => 'Data tidak ditemukan'
-            ]);
-        }
-    }
+
 
     /**
      * Update the specified resource in storage.
@@ -102,43 +112,75 @@ class ApplyController extends Controller
             ], 404);
         }
 
+        // Validasi hanya status saat update
         $rules = [
-            'nama' => 'required',
-            'email' => 'required|email|unique:apply,email,' . $dataApply->id, // Mengizinkan email yang sama saat update
-            'no_tlp' => 'required|unique:apply,no_tlp,' . $dataApply->id, // Mengizinkan no_tlp yang sama saat update
-            'alamat' => 'required',
-            'cv' => 'required',
-            'portofolio' => 'nullable', // Kolom ini bisa kosong
-            'linkdln' => 'nullable|url', // Validasi linkdln
-            'github' => 'nullable|url', // Validasi github
-            'status' => 'required|in:1,2,3' // Validasi status harus 1, 2, atau 3
+            'status' => 'required|in:1,2,3', // Validasi status saat update
         ];
 
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
-                'message' => 'Gagal melakukan update data',
+                'message' => 'Gagal melakukan update status',
                 'data' => $validator->errors()
             ]);
         }
 
-        // Mengupdate data
-        $dataApply->nama = $request->nama;
-        $dataApply->email = $request->email;
-        $dataApply->no_tlp = $request->no_tlp;
-        $dataApply->alamat = $request->alamat;
-        $dataApply->cv = $request->cv;
-        $dataApply->portofolio = $request->portofolio;
-        $dataApply->linkdln = $request->linkdln; // Mengupdate linkdln
-        $dataApply->github = $request->github;   // Mengupdate github
-        $dataApply->status = $request->status;   // Mengupdate status
+        // Mengupdate status
+        $dataApply->status = $request->status;
 
         $dataApply->save();
 
         return response()->json([
             'status' => true,
-            'message' => 'Sukses melakukan update data'
+            'message' => 'Sukses melakukan update status'
+        ]);
+    }
+
+    public function updateStatus(Request $request, string $id)
+    {
+        $dataApply = Apply::find($id);
+        if (empty($dataApply)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+        }
+
+        // Mengubah status ke 2 (diterima)
+        $dataApply->status = 2; // atau sesuai status yang Anda inginkan
+
+        $dataApply->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Status pelamar berhasil diubah menjadi diterima'
+        ]);
+    }
+
+    /**
+     * Update the status of a specified resource to rejected.
+     */
+    public function reject(Request $request, string $id)
+    {
+        // Mencari data pelamar berdasarkan ID
+        $dataApply = Apply::find($id);
+        if (empty($dataApply)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+        }
+
+        // Mengubah status ke 3 (ditolak)
+        $dataApply->status = 3; // Sesuaikan ini sesuai kebutuhan
+
+        // Menyimpan perubahan
+        $dataApply->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Status pelamar berhasil diubah menjadi ditolak'
         ]);
     }
 
@@ -162,4 +204,34 @@ class ApplyController extends Controller
             'message' => 'Sukses melakukan hapus data'
         ]);
     }
+
+    // /**
+    //  * Display a listing of accepted applications (status 2).
+    //  */
+    // public function accepted()
+    // {
+    //     // Menampilkan data dengan status 2
+    //     $data = Apply::where('status', 2)->orderBy('nama', 'asc')->get();
+    //     return response()->json([
+    //         'status' => true,
+    //         'message' => 'Data diterima ditemukan',
+    //         'data' => $data
+    //     ], 200);
+    // }
+
+    // /**
+    //  * Display a listing of rejected applications (status 3).
+    //  */
+    // public function rejected()
+    // {
+    //     // Menampilkan data dengan status 3
+    //     $data = Apply::where('status', 3)->orderBy('nama', 'asc')->get();
+    //     return response()->json([
+    //         'status' => true,
+    //         'message' => 'Data ditolak ditemukan',
+    //         'data' => $data
+    //     ], 200);
+    // }
+
+
 }

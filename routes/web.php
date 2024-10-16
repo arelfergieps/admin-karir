@@ -42,17 +42,31 @@ Route::get('karir/{id}',[KarirController::class,'edit']);
 Route::put('karir/{id}',[KarirController::class,'update']);
 Route::delete('karir/{id}',[KarirController::class,'destroy']);
 
+
+Route::get('/hidden_karir', [KarirController::class, 'hiddenKarir'])->name('karir.hidden');
+
 Route::get('apply',[ApplyController::class,'index']);
 Route::post('apply',[ApplyController::class,'store']);
 Route::get('apply/{id}',[ApplyController::class,'edit']);
 Route::put('apply/{id}',[ApplyController::class,'update']);
 Route::delete('apply/{id}',[ApplyController::class,'destroy']);
+Route::get('view_cv/{id}', [ApplyController::class, 'view_cv'])->name('admin.view_cv');
+Route::post('apply/{id}/accept', [ApplyController::class, 'accept']);
+Route::post('apply/{id}/reject', [ApplyController::class, 'reject']);
+
+
+Route::get('/apply/accepted', [ApplyController::class, 'indexAccepted']);
+Route::get('/apply/rejected', [ApplyController::class, 'indexRejected']);
+// Route::get('/apply/accepted', [ApplyController::class, 'accepted'])->name('apply.accepted');
+// Route::get('/apply/rejected', [ApplyController::class, 'rejected'])->name('apply.rejected');
+
+
 
 // Route::post('/tolak/{id}', [ApplyController::class, 'tolak'])->name('tolak');
-Route::get('/tolak', function () {
-    $data = Apply::all(); // Ambil semua data pelamar, misalnya
-    return view('tolak.tolak', compact('data')); // Kirim data ke view
-})->name('tolak.halaman');
+// Route::get('/tolak', function () {
+//     $data = Apply::all(); // Ambil semua data pelamar, misalnya
+//     return view('tolak.tolak', compact('data')); // Kirim data ke view
+// })->name('tolak.halaman');
 
 
 

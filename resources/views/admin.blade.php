@@ -321,12 +321,14 @@
                 <i class="fa fa-dashboard"></i> <span>Dashboard</span> <i class="fa fa-angle-left pull-right"></i>
               </a>
               <ul class="treeview-menu">
-                <li class="active"><a href="http://127.0.0.1:8001/karir"><i class="fa fa-circle-o"></i> Karir</a></li>
-                <li><a href="http://127.0.0.1:8003/apply"><i class="fa fa-circle-o"></i>Pelamar</a></li>
-               <li><a href="{{ route('tolak.halaman') }}"><i class="fa fa-circle-o"></i>Tolak Pelamar</a></li>
+    <li class="active"><a href="http://127.0.0.1:8001/karir"><i class="fa fa-circle-o"></i> Karir</a></li>
+    <li class="active"><a href="http://127.0.0.1:8004/hidden_karir"><i class="fa fa-circle-o"></i> Hidden Karir</a></li>
+    <li><a href="http://127.0.0.1:8003/apply"><i class="fa fa-circle-o"></i> Pelamar</a></li>
+    <li><a href="http://127.0.0.1:8003/terima"><i class="fa fa-circle-o"></i> Terima</a></li>
+    <li><a href="http://127.0.0.1:8003/tolak"><i class="fa fa-circle-o"></i> Tolak</a></li>
+</ul>
 
 
-              </ul>
             </li>
             {{-- <li class="treeview">
               <a href="#">
