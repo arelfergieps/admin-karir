@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use App\Models\Karir;
 
 class KarirController extends Controller
 {
@@ -13,61 +13,40 @@ class KarirController extends Controller
      */
     public function index(Request $request)
     {
-        $client = new Client();
-        $url = "http://127.0.0.1:8000/api/karir";
+        // Filter status jika disediakan, defaultnya null untuk mengambil semua data
+        $filterStatus = $request->input('status', 1); // Set default ke 1 untuk hanya menampilkan status aktif
+        $query = Karir::query();
 
-        // Jika ingin hanya menampilkan yang status aktif (status = 1)
-        $filterStatus = $request->input('status', null);
-        if ($filterStatus !== null) {
-            $url .= '?status=' . $filterStatus;  // Tambahkan filter status jika diberikan
+        // Hanya ambil data dengan status 1
+        if ($filterStatus == 1) {
+            $query->where('status', 1);  // Tambahkan filter status untuk status 1 (aktif)
         }
 
-        $response = $client->request('GET', $url);
-        $content = $response->getBody()->getContents();
-        $contentArray = json_decode($content, true);
-        $data = $contentArray['data'];
+        $data = $query->get(); // Ambil data dari database
 
         return view('karir.karir', ['data' => $data]);
     }
+
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $job_title = $request->job_title;
-        $description = $request->description;
-        $location = $request->location;
-        $kategori = $request->kategori;
-        $kualifikasi = $request->kualifikasi;
-        $divisi = $request->divisi;
-        $gaji = $request->gaji;
-        $status = $request->status;
+        $karir = new Karir;
+        $karir->job_title = $request->job_title;
+        $karir->description = $request->description;
+        $karir->location = $request->location;
+        $karir->kategori = $request->kategori;
+        $karir->kualifikasi = $request->kualifikasi;
+        $karir->divisi = $request->divisi;
+        $karir->gaji = $request->gaji;
+        $karir->status = $request->status;
 
-        $parameter = [
-            'job_title' => $job_title,
-            'description' => $description,
-            'location' => $location,
-            'kategori' => $kategori,
-            'kualifikasi' => $kualifikasi,
-            'divisi' => $divisi,
-            'gaji' => $gaji,
-            'status' => $status,
-        ];
-
-        $client = new Client();
-        $url = "http://127.0.0.1:8000/api/karir";
-        $response = $client->request('POST', $url, [
-            'headers' => ['Content-type' => 'application/json'],
-            'body' => json_encode($parameter)
-        ]);
-        $content = $response->getBody()->getContents();
-        $contentArray = json_decode($content, true);
-        if ($contentArray['status'] != true) {
-            $error = $contentArray['data'];
-            return redirect()->to('karir')->withErrors($error)->withInput();
-        } else {
+        if ($karir->save()) {
             return redirect()->to('karir')->with('success', 'Berhasil Memasukan Data');
+        } else {
+            return redirect()->to('karir')->withErrors('Gagal Memasukan Data')->withInput();
         }
     }
 
@@ -76,19 +55,13 @@ class KarirController extends Controller
      */
     public function edit(string $id)
     {
-        $client = new Client();
-        $url = "http://127.0.0.1:8000/api/karir/$id";
-        $response = $client->request('GET', $url);
-        $content = $response->getBody()->getContents();
-        $contentArray = json_decode($content, true);
+        $karir = Karir::find($id);
 
-        if ($contentArray['status'] != true) {
-            $error = $contentArray['message'];
-            return redirect()->to('karir')->withErrors($error);
-        } else {
-            $data = $contentArray['data'];
-            return view('karir.karir', ['data' => $data]);
+        if (!$karir) {
+            return redirect()->to('karir')->withErrors('Data tidak ditemukan');
         }
+
+        return view('karir.edit', ['data' => $karir]); // Gunakan view edit
     }
 
     /**
@@ -96,95 +69,66 @@ class KarirController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $job_title = $request->job_title;
-        $description = $request->description;
-        $location = $request->location;
-        $kategori = $request->kategori;
-        $kualifikasi = $request->kualifikasi;
-        $divisi = $request->divisi;
-        $gaji = $request->gaji;
-        $status = $request->status; // Status yang diubah, bisa 1 atau 2
+        $karir = Karir::find($id);
 
-        $parameter = [
-            'job_title' => $job_title,
-            'description' => $description,
-            'location' => $location,
-            'kategori' => $kategori,
-            'kualifikasi' => $kualifikasi,
-            'divisi' => $divisi,
-            'gaji' => $gaji,
-            'status' => $status,
-        ];
+        if (!$karir) {
+            return redirect()->back()->withErrors('Data tidak ditemukan')->withInput();
+        }
 
-        $client = new Client();
-        $url = "http://127.0.0.1:8000/api/karir/$id";
-        $response = $client->request('PUT', $url, [
-            'headers' => ['Content-type' => 'application/json'],
-            'body' => json_encode($parameter)
-        ]);
-        $content = $response->getBody()->getContents();
-        $contentArray = json_decode($content, true);
+        $karir->job_title = $request->job_title;
+        $karir->description = $request->description;
+        $karir->location = $request->location;
+        $karir->kategori = $request->kategori;
+        $karir->kualifikasi = $request->kualifikasi;
+        $karir->divisi = $request->divisi;
+        $karir->gaji = $request->gaji;
+        $karir->status = $request->status;
 
-        if ($contentArray['status'] != true) {
-            $error = $contentArray['data'];
-            return redirect()->back()->withErrors($error)->withInput();
-        } else {
-            if ($status == 1) {
-                // Jika status 1, kembalikan ke halaman karir
+        if ($karir->save()) {
+            if ($karir->status == 1) {
                 return redirect()->to('karir')->with('success', 'Berhasil melakukan update Data');
-            } elseif ($status == 2) {
-                // Jika status 2, pindahkan ke halaman hidden karir
+            } elseif ($karir->status == 2) {
                 return redirect()->to('karir/hidden_karir')->with('success', 'Berhasil mengupdate status, data dipindahkan ke halaman Hidden Karir');
             }
+        } else {
+            return redirect()->back()->withErrors('Gagal memperbarui data')->withInput();
         }
     }
-
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
     {
-        $client = new Client();
-        $url = "http://127.0.0.1:8000/api/karir/$id";
-        $response = $client->request('DELETE', $url);
-        $content = $response->getBody()->getContents();
-        $contentArray = json_decode($content, true);
-        if ($contentArray['status'] != true) {
-            $error = $contentArray['data'];
-            return redirect()->to('karir')->withErrors($error)->withInput();
-        } else {
+        $karir = Karir::find($id);
+
+        if (!$karir) {
+            return redirect()->to('karir')->withErrors('Data tidak ditemukan');
+        }
+
+        if ($karir->delete()) {
             return redirect()->to('karir')->with('success', 'Berhasil melakukan Hapus Data');
+        } else {
+            return redirect()->to('karir')->withErrors('Gagal menghapus data');
         }
     }
-
-
 
     /**
      * Display a listing of hidden resources (status = 2).
      */
     public function hiddenKarir(Request $request)
     {
-        $client = new Client();
-        $url = "http://127.0.0.1:8000/api/karir"; // Panggil endpoint API Anda
-
-        // Tambahkan status sebagai query parameter
-        $response = $client->request('GET', $url, [
-            'query' => [
-                'status' => 2, // Mengambil pekerjaan dengan status 2
-                'per_page' => 10 // Jumlah data per halaman
-            ]
-        ]);
-
-        $content = $response->getBody()->getContents();
-        $contentArray = json_decode($content, true);
-
-        // Pastikan data yang diterima
-        $data = $contentArray['data']['data'] ?? []; // Mengakses data di dalam sub-array 'data'
+        // Mengambil data karir yang tersembunyi
+        $data = Karir::where('status', 2)->paginate(10);
 
         return view('karir.hidden_karir', ['data' => $data]);
     }
 
-
+    // Di dalam KarirController
+    // public function countActiveKarir()
+    // {
+    //     $countActiveJobs = Karir::where('status', 1)->count(); // Menghitung jumlah pekerjaan aktif
+    //     return view('admin', ['countActiveJobs' => $countActiveJobs]); // Pass ke view
+    // }
 
 }

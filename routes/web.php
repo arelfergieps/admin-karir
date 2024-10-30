@@ -29,9 +29,12 @@ Route::get('/home', function () {
 
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/admin', [AdminController::class, 'index']);
+    Route::get('/admin', [AdminController::class, 'dashboard']);
     Route::get('/admin/admin', [AdminController::class, 'admin'])->middleware('userAkses:admin');
     Route::get('/logout', [SesiController::class, 'logout']);
+
+
+
 });
 
 
@@ -45,6 +48,7 @@ Route::delete('karir/{id}',[KarirController::class,'destroy']);
 
 Route::get('/hidden_karir', [KarirController::class, 'hiddenKarir'])->name('karir.hidden');
 
+
 Route::get('apply',[ApplyController::class,'index']);
 Route::post('apply',[ApplyController::class,'store']);
 Route::get('apply/{id}',[ApplyController::class,'edit']);
@@ -55,8 +59,9 @@ Route::post('apply/{id}/accept', [ApplyController::class, 'accept']);
 Route::post('apply/{id}/reject', [ApplyController::class, 'reject']);
 
 
-Route::get('/apply/accepted', [ApplyController::class, 'indexAccepted']);
-Route::get('/apply/rejected', [ApplyController::class, 'indexRejected']);
+Route::get('/terima', [ApplyController::class, 'terima'])->name('apply.terima');
+Route::get('/tolak', [ApplyController::class, 'tolak'])->name('apply.tolak');
+
 // Route::get('/apply/accepted', [ApplyController::class, 'accepted'])->name('apply.accepted');
 // Route::get('/apply/rejected', [ApplyController::class, 'rejected'])->name('apply.rejected');
 

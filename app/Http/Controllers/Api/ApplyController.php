@@ -12,48 +12,30 @@ class ApplyController extends Controller
     /**
      * Display a listing of the resource for status 1.
      */
-    public function index()
-    {
-        // Hanya menampilkan data dengan status 1
-        $data = Apply::where('status', 1)->orderBy('nama', 'asc')->get();
-        return response()->json([
-            'status' => true,
-            'message' => 'Data ditemukan',
-            'data' => $data
-        ], 200);
+    public function index(Request $request)
+{
+    $status = $request->input('status', 1); // Default ke status 1
+
+    $query = Apply::query(); // Membuat query builder
+
+    // Filter berdasarkan status jika ada
+    if ($status) {
+        $query->where('status', $status);
     }
 
-    /**
-     * Display a listing of accepted applications (status 2).
-     */
-    // public function accepted()
-    // {
-    //     // Menampilkan data dengan status 2
-    //     $data = Apply::where('status', 2)->orderBy('nama', 'asc')->get();
-    //     return response()->json([
-    //         'status' => true,
-    //         'message' => 'Data diterima ditemukan',
-    //         'data' => $data
-    //     ], 200);
-    // }
+    // Ambil semua data tanpa pagination
+    $data = $query->orderBy('nama', 'asc')->get();
 
-    // /**
-    //  * Display a listing of rejected applications (status 3).
-    //  */
-    // public function rejected()
-    // {
-    //     // Menampilkan data dengan status 3
-    //     $data = Apply::where('status', 3)->orderBy('nama', 'asc')->get();
-    //     return response()->json([
-    //         'status' => true,
-    //         'message' => 'Data ditolak ditemukan',
-    //         'data' => $data
-    //     ], 200);
-    // }
+    return response()->json([
+        'status' => true,
+        'message' => 'Data ditemukan',
+        'data' => $data
+    ], 200);
+}
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
+
+
     public function store(Request $request)
     {
         $dataApply = new Apply;
@@ -205,33 +187,51 @@ class ApplyController extends Controller
         ]);
     }
 
-    // /**
-    //  * Display a listing of accepted applications (status 2).
-    //  */
-    // public function accepted()
-    // {
-    //     // Menampilkan data dengan status 2
-    //     $data = Apply::where('status', 2)->orderBy('nama', 'asc')->get();
-    //     return response()->json([
-    //         'status' => true,
-    //         'message' => 'Data diterima ditemukan',
-    //         'data' => $data
-    //     ], 200);
-    // }
+    /**
+     * Display a listing of accepted applications (status 2).
+     */
+    public function accepted()
+    {
+        $data = Apply::where('status', 2)->orderBy('nama', 'asc')->get();
+        dd($data); // Debugging: akan menghentikan eksekusi dan menampilkan data
+        return response()->json([
+            'status' => true,
+            'message' => 'Data diterima ditemukan',
+            'data' => $data
+        ], 200);
+    }
 
-    // /**
-    //  * Display a listing of rejected applications (status 3).
-    //  */
-    // public function rejected()
-    // {
-    //     // Menampilkan data dengan status 3
-    //     $data = Apply::where('status', 3)->orderBy('nama', 'asc')->get();
-    //     return response()->json([
-    //         'status' => true,
-    //         'message' => 'Data ditolak ditemukan',
-    //         'data' => $data
-    //     ], 200);
-    // }
+    public function rejected()
+    {
+        $data = Apply::where('status', 3)->orderBy('nama', 'asc')->get();
+        dd($data); // Debugging: akan menghentikan eksekusi dan menampilkan data
+        return response()->json([
+            'status' => true,
+            'message' => 'Data ditolak ditemukan',
+            'data' => $data
+        ], 200);
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        $dataApply = Apply::find($id);
+        if (empty($dataApply)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Data ditemukan',
+            'data' => $dataApply
+        ], 200);
+    }
+
 
 
 }

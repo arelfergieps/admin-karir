@@ -1,4 +1,4 @@
-<!doctype html>
+{{-- <!doctype html>
 <html lang="en">
 
 <head>
@@ -10,9 +10,43 @@
 </head>
 
 <body class="bg-light">
-    <main class="container">
+    <main class="container"> --}}
       
-  <!-- START DATA -->
+  
+
+    {{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</body>
+
+</html> --}}
+
+
+
+
+
+
+
+@extends('layout.main')
+@section('content')
+
+<!-- Content Wrapper. Contains page content -->
+      <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+           <h1>
+            Dashboard
+            <small>karir</small>
+          </h1>
+          <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li class="active">Dashboard</li>
+          </ol>
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+          <!-- Small boxes (Stat box) -->
+          <!-- START DATA -->
         <div class="my-3 p-3 bg-body rounded shadow-sm">
             <table class="table table-striped">
                 <thead>
@@ -36,10 +70,10 @@
             <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $item['job_title'] }}</td>
-                <td>{{ $item['description'] }}</td>
+                <td>{!! $item['description'] !!}</td>
                 <td>{{ $item['location'] }}</td>
                 <td>{{ $item['kategori'] }}</td>
-                <td>{{ $item['kualifikasi'] }}</td>
+                <td>{!! $item['kualifikasi'] !!}</td>
                 <td>{{ $item['divisi'] }}</td>
                 <td>{{ $item['gaji'] }}</td>
                 <td>
@@ -65,17 +99,12 @@
         </tr>
     @endif
 </tbody>
-
-
-
-                </tbody>
+           </tbody>
             </table>
         </div>
         <!-- AKHIR DATA -->
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</body>
-
-</html>
+        </section><!-- /.content -->
+      </div><!-- /.content-wrapper -->
+@endsection

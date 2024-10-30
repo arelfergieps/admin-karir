@@ -57,7 +57,7 @@ class KarirController extends Controller
             'kategori' => 'required',
             'kualifikasi' => 'required',
             'divisi' => 'required',
-            'gaji' => 'required|numeric',
+            'gaji' => 'required',
             // 'status' => 'required|in:1,2' // Status hanya boleh 1 (show) atau 2 (hide)
         ];
 
@@ -127,7 +127,7 @@ class KarirController extends Controller
             'kategori' => 'required',
             'kualifikasi' => 'required',
             'divisi' => 'required',
-            'gaji' => 'required|numeric',
+            'gaji' => 'required',
             'status' => 'required|in:1,2' // Status hanya boleh 1 (show) atau 2 (hide)
         ];
 

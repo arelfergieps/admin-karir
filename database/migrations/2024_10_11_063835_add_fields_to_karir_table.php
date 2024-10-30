@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('kategori')->nullable();    // Menambahkan kolom kategori
             $table->text('kualifikasi')->nullable();    // Menambahkan kolom kualifikasi
             $table->string('divisi')->nullable();       // Menambahkan kolom divisi
-            $table->integer('gaji')->nullable();        // Menambahkan kolom gaji
+            $table->string('gaji')->nullable();        // Menambahkan kolom gaji
             $table->enum('status', [1, 2])->default(1); // Menambahkan kolom status (1 = show, 2 = hide)
         });
     }

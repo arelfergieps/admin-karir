@@ -32,6 +32,10 @@ Route::apiResource('apply',ApplyController::class);
 Route::put('/apply/{id}/reject', [ApplyController::class, 'reject']);
 Route::put('/apply/{id}/accept', [ApplyController::class, 'updateStatus']);
 
+Route::get('apply/accepted', [ApplyController::class, 'accepted']);
+Route::get('apply/rejected', [ApplyController::class, 'rejected']);
+Route::get('applies/{id}', [ApplyController::class, 'show']);
+
 
 
 
