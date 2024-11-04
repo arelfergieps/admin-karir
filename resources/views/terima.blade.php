@@ -50,6 +50,7 @@
                     <th>Portofolio</th>
                     <th>LinkedIn</th>
                     <th>Posisi</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -81,7 +82,13 @@
                                 @endif
                             </td>
                             <td>{{ $item['github'] }}</td>
-                            
+                            <td>
+                                <form action="{{ url('apply/'.$item['id']) }}" method="post" onsubmit="return confirm('Apakah yakin akan melakukan penghapusan data')" class="d-inline">
+                                    @csrf
+                                    @method('delete')
+                                    <button type='submit' name="submit" class="btn btn-danger btn-sm">Del</button>
+                                </form>
+                            </td>
                         </tr>
                     @endforeach
                 @endif
